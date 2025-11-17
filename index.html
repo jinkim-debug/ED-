@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ED 진단 기기 수요 조사 인포그래픽 - (레이블 겹침 최종 해결)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .chart-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2196F3;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        /* 수평 바 차트의 높이 증가 */
+        #diagnosisMethodsChart {
+             height: 320px !important; 
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 250px; /* 기본 높이 */
+            margin-bottom: 1rem;
+        }
+        .chart-description {
+            font-size: 0.95rem;
+            color: #555;
+            text-align: center;
+            line-height: 1.4;
+            flex-grow: 0;
+        }
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #0041C2;
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0056D6;
+            text-align: center;
+            margin-top: 3.5rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: #64B5F6;
+            border-radius: 2px;
+        }
+        .stat-highlight-card {
+            background-color: #2196F3;
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .stat-highlight-number {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1;
+            color: #E3F2FD;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .stat-highlight-label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            line-height: 1.4;
+        }
+
+        .summary-box {
+            background-color: #e3f2fd;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .summary-box h2 {
+            color: #1976D2;
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+        .summary-box h2::after {
+            display: none;
+        }
+        .summary-box p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 leading-relaxed">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-12 mt-8">
+            <h1>병원용 ED 진단 기기 수요 조사 인포그래픽</h1>
+            <p class="subtitle">임상 현장의 목소리를 통해 본 ED 진단 및 치료의 현주소와 미래</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <div class="lg:col-span-3 stat-highlight-card">
+                <div class="stat-highlight-number">61%</div>
+                <div class="stat-highlight-label">의료진이 "실제 진료 환경에 적합한 새로운 ED 진단 기기가 필요하다"고 응답했습니다.</div>
+            </div>
+
+        </div> <!-- grid --><h2>응답자 현황: 숙련된 전문의 중심</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="lg:col-span-3 text-center text-gray-700 mb-6 text-lg">이번 조사는 풍부한 임상 경험을 가진 의료진을 중심으로 진행되었습니다. 응답자의 대다수는 개원의 소속이었으며, 94%가 11년 이상의 진료 경력을 보유하고 있어 현장의 목소리를 깊이 있게 반영합니다.</p>
+
+            <div class="chart-card">
+                <div class="chart-title">응답자 소속 비율</div>
+                <div class="chart-container">
+                    <canvas id="affiliationChart"></canvas>
+                </div>
+                <div class="chart-description">조사 응답자의 <span class="font-bold text-blue-600">84%가 개원의</span>에 소속되어 있어, 1차 진료 현장의 의견이 주로 반영되었습니다.</div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">응답자 진료 경력</div>
+                <div class="chart-container">
+                    <canvas id="experienceChart"></canvas>
+                </div>
+                <div class="chart-description"><span class="font-bold text-blue-600">21년 이상(49%)과 11-20년(45%) 경력자</span>가 응답자의 대다수를 차지, 숙련된 전문의들의 의견임을 보여줍니다.</div>
+            </div>
+
+            <div class="chart-card flex flex-col justify-center items-center">
+                <div class="chart-title mb-4">주당 평균 ED 환자 진료</div>
+                <div class="flex items-baseline my-4">
+                    <span class="text-7xl font-extrabold text-blue-700">33</span>
+                    <span class="text-3xl font-semibold text-gray-700 ml-2">건</span>
+                </div>
+                <div class="chart-description mt-auto">응답자들은 주당 평균 <span class="font-bold text-blue-600">33건의 ED 환자</span>를 진료하고 있어, ED가 임상에서 매우 비중 있는 질환임을 시사합니다.</div>
+            </div>
+        </div> <!-- grid --><h2>진료 현황: 낮은 검사 비율과 현실적 장벽</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="lg:col-span-3 text-center text-gray-700 mb-6 text-lg">환자 진료 건수 대비 실제 진단 검사 비율은 매우 낮은 수준입니다. 이는 환자들이 빠른 약물 처방을 선호하는 경향과 병원의 현실적인 제약이 복합적으로 작용한 결과입니다.</p>
+
+            <div class="chart-card">
+                <div class="chart-title">진단 검사 비율</div>
+                <div class="chart-container">
+                    <canvas id="testRatioChart"></canvas>
+                </div>
+                <div class="chart-description">응답자의 <span class="font-bold text-blue-600">66%가 진료 환자 중 실제 진단 검사를 수행하는 비율이 10% 미만</span>이라고 답했습니다.</div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">검사 수행 이유</div>
+                <div class="chart-container">
+                    <canvas id="reasonsForTestChart"></canvas>
+                </div>
+                <div class="chart-description">검사를 수행하는 주된 이유는 <span class="font-bold text-blue-600">환자의 요청(32%)과 기본 검사의 필요성(31%)</span>이었으며, 기타(37%) 요인도 작용했습니다.</div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">검사 미수행 이유</div>
+                <div class="chart-container">
+                    <canvas id="reasonsAgainstTestChart"></canvas>
+                </div>
+                <div class="chart-description">검사를 하지 않는 가장 큰 이유는 <span class="font-bold text-blue-600">환자의 빠른 약물 처방 선호(43%)와 장비/인력 부족(20%)</span> 등 현실적 제약 때문이며, 이외 기타(37%) 요인이 있습니다.</div>
+            </div>
+        </div> <!-- grid --><h2>ED 원인 및 현재 진단 방식</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <p class="md:col-span-2 text-center text-gray-700 mb-6 text-lg">의료진은 임상에서 심인성 ED를 가장 흔하게 접하고 있으며, 진단은 객관적인 검사보다는 문진이나 설문 등 주관적 방법에 크게 의존하고 있습니다.</p>
+
+            <div class="chart-card">
+                <div class="chart-title">임상에서 가장 흔한 ED 원인</div>
+                <div class="chart-container">
+                    <canvas id="causesChart"></canvas>
+                </div>
+                <div class="chart-description"><span class="font-bold text-blue-600">심인성(60%)</span>이 가장 큰 비중을 차지했으며, 혈관성(35%)이 그 뒤를 이었습니다.</div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-title">주요 ED 진단 방법 활용도</div>
+                <div class="chart-container">
+                    <canvas id="diagnosisMethodsChart"></canvas>
+                </div>
+                <div class="chart-description"><span class="font-bold text-blue-600">단순 문진(35%), 혈액검사(28%), IIEF 설문(27%)</span>이 진단의 대부분을 차지했으며, 도플러 초음파 등 객관적 검사(8%)는 미미했습니다.</div>
+            </div>
+        </div> <!-- grid --><h2>기존 방식의 한계: 치료와 진단의 딜레마</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="lg:col-span-3 text-center text-gray-700 mb-6 text-lg">현재의 진료 패턴은 한계에 부딪히고 있습니다. 약물 치료 효과는 기대에 미치지 못하며, 주관적 진단 방식(IIEF 설문)의 신뢰도에 대한 의문이 제기되고 있습니다. 또한 환자들은 검사 자체의 불편감과 번거로움으로 인해 검사를 기피하고 있습니다.</p>
+
+            <div class="stat-highlight-card bg-blue-600">
+                <div class="stat-highlight-number text-blue-200">59%</div>
+                <div class="stat-highlight-label">응답자의 59%가 "최소 30%의 환자에서 약물치료 효과가 없다"고 판단했습니다.</div>
+            </div>
+
+            <div class="stat-highlight-card bg-blue-600">
+                <div class="stat-highlight-number text-blue-200">41%</div>
+                <div class="stat-highlight-label">응답자의 41%가 IIEF 설문 응답의 신뢰도에 의문을 제기했습니다.</div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">검사 시 주요 어려움</div>
+                <div class="chart-container">
+                    <canvas id="difficultiesChart"></canvas>
+                </div>
+                <div class="chart-description">환자의 <span class="font-bold text-blue-600">검사 거부감(27%), 과정의 번거로움(26%), 객관성 부족(24%)</span>이 주된 어려움으로 꼽혔으며, 기타(23%) 요인이 나머지 비중을 차지했습니다.</div>
+            </div>
+        </div> <!-- grid --><div class="summary-box lg:col-span-3">
+            <h2 class="text-center">결론: 객관적이고 편리한 진단 도구의 필요성</h2>
+            <p class="text-center">조사 결과, <span class="font-bold text-blue-700">48%의 의료진이 "대체 가능한 도구가 없어" 기존의 불만족스러운 방식을 유지</span>하고 있었습니다. 이는 명확한 시장의 'Unmet Needs'를 보여줍니다.</p>
+            <p class="text-center mt-4">환자의 거부감이 적고, 사용이 간편하며, 진료실 환경에 적합한 <span class="font-bold text-blue-700">객관적인 진단 기기에 대한 수요(61%+)는 매우 높습니다.</span> 현재의 주관적이고 번거로운 진단 과정을 대체할 새로운 기술이 임상 현장의 진료 질을 높이고 환자 만족도를 개선할 핵심 기회가 될 것입니다.</p>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 파이/도넛 차트용: 명도가 확연히 다른 블루/시안 계열 색상 조합
+            const vividColorPalette = [
+                '#1E88E5', // Bright Blue
+                '#4FC3F7', // Light Blue
+                '#00ACC1', // Cyan
+                '#26A69A', // Teal
+                '#81D4FA', // Very Light Blue
+                '#BBDEFB'  // Pale Blue
+            ];
+            
+            // 바 차트용: 단일 색상
+            const barChartColor = '#1E88E5'; 
+
+            const tooltipTitleCallback = (tooltipItems) => {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                // 툴팁에는 줄 바꿈 없이 전체 텍스트를 표시합니다.
+                if (Array.isArray(label)) {
+                    // 배열로 된 레이블을 공백으로 합쳐서 표시
+                    return label.join(' ').replace(/\//g, '/ '); 
+                }
+                return label;
+            };
+
+            // Chart.js의 훅을 사용하여 레이블이 인덱스로 변환되는 것을 방지합니다.
+            const forceLabelPlugin = {
+                id: 'forceLabelPlugin',
+                beforeUpdate(chart) {
+                    const indexAxis = chart.options.indexAxis;
+                    const scale = indexAxis === 'y' ? chart.scales.y : chart.scales.x;
+
+                    if (scale && scale.options.ticks.autoSkip === false) {
+                        const labels = chart.data.labels;
+                        if (labels && labels.length > 0) {
+                             scale.options.ticks.callback = function(value, index) {
+                                // 레이블 데이터 배열에서 직접 텍스트를 가져옵니다.
+                                let label = labels[index];
+                                // 줄바꿈을 위해 배열 형태로 반환합니다.
+                                return Array.isArray(label) ? label : [label];
+                            };
+                        }
+                    }
+                }
+            };
+            
+            // 전역적으로 플러그인 등록
+            Chart.register(forceLabelPlugin);
+
+
+            const commonChartOptions = (type = 'bar') => ({
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        // **X축 겹침 방지 핵심**: 수직 바 차트(type='bar')의 경우 하단 패딩 대폭 증가
+                        bottom: type === 'bar' ? 40 : 10, 
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: type === 'doughnut' || type === 'pie',
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                family: "'Noto Sans KR', sans-serif",
+                                size: 13
+                            },
+                            color: '#333'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: tooltipTitleCallback,
+                            label: function(context) {
+                                if (context.parsed !== null) {
+                                    if (type === 'pie' || type === 'doughnut') {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const currentValue = context.parsed;
+                                        const percentage = Math.round((currentValue/total) * 100);
+                                        return `${context.label}: ${percentage}%`;
+                                    } else {
+                                        return context.parsed.x !== undefined ? context.parsed.x + '%' : context.parsed.y + '%';
+                                    }
+                                }
+                                return '';
+                            }
+                        },
+                        titleFont: { family: "'Noto Sans KR', sans-serif", size: 14, weight: 'bold' },
+                        bodyFont: { family: "'Noto Sans KR', sans-serif", size: 13 },
+                        padding: 10,
+                        backgroundColor: 'rgba(0,0,0,0.7)',
+                        displayColors: type !== 'bar',
+                        boxPadding: 4
+                    }
+                },
+            });
+            
+            // 바 차트 전용 옵션 (레이블 회전 및 패딩 조정)
+            const commonBarOptions = (indexAxis = 'x') => ({
+                ...commonChartOptions('bar'),
+                indexAxis: indexAxis,
+                plugins: {
+                    ...commonChartOptions('bar').plugins,
+                    legend: { display: false },
+                },
+                scales: {
+                    // X축 설정 (수직 바 차트)
+                    x: {
+                        beginAtZero: true,
+                        grid: { 
+                            color: indexAxis === 'y' ? '#e0e0e0' : 'transparent',
+                        },
+                        ticks: {
+                            font: { 
+                                family: "'Noto Sans KR', sans-serif", 
+                                size: 10, 
+                                lineHeight: 1.2, 
+                            },
+                            color: '#555',
+                            callback: indexAxis === 'y' ? (value) => value + '%' : undefined,
+                            autoSkip: false, 
+                            // **X축 겹침 방지 핵심**: 45도 회전 적용
+                            maxRotation: indexAxis === 'x' ? 45 : 0, 
+                            minRotation: indexAxis === 'x' ? 45 : 0,
+                            padding: 10,
+                        }
+                    },
+                    // Y축 설정 (수평 바 차트)
+                    y: {
+                        beginAtZero: indexAxis === 'x',
+                        grid: { 
+                            color: indexAxis === 'x' ? '#e0e0e0' : 'transparent',
+                        },
+                        ticks: {
+                            font: { 
+                                family: "'Noto Sans KR', sans-serif", 
+                                size: 10, 
+                                lineHeight: 1.2, 
+                            },
+                            color: '#555',
+                            callback: indexAxis === 'x' ? (value) => value + '%' : undefined,
+                            autoSkip: false, 
+                            padding: 10,
+                        }
+                    }
+                }
+            });
+
+
+            // --- 데이터 차트 생성 ---
+            
+            // 1. 응답자 소속 (색상 개선 적용)
+            new Chart(document.getElementById('affiliationChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['개의원 (84%)', '병원 (16%)'],
+                    datasets: [{
+                        data: [84, 16],
+                        backgroundColor: [vividColorPalette[0], vividColorPalette[3]], 
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: commonChartOptions('doughnut')
+            });
+
+            // 2. 응답자 진료 경력 (색상 개선 적용)
+            new Chart(document.getElementById('experienceChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['21년 이상 (49%)', '11-20년 (45%)', '10년 이하 (6%)'],
+                    datasets: [{
+                        data: [49, 45, 6],
+                        backgroundColor: [vividColorPalette[0], vividColorPalette[1], vividColorPalette[2]],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: commonChartOptions('pie')
+            });
+
+            // 3. 진단 검사 비율 (색상 개선 적용)
+            new Chart(document.getElementById('testRatioChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['10% 미만 (66%)', '10% 이상 (34%)'],
+                    datasets: [{
+                        label: '진단 검사 비율',
+                        data: [66, 34],
+                        backgroundColor: [vividColorPalette[0], vividColorPalette[4]],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: commonChartOptions('doughnut')
+            });
+
+            // 4. 임상에서 가장 흔한 ED 원인 (색상 개선 적용)
+            new Chart(document.getElementById('causesChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['심인성 (60%)', '혈관성 (35%)', '호르몬성 (2%)', '기타 (3%)'],
+                    datasets: [{
+                        data: [60, 35, 2, 3],
+                        backgroundColor: [vividColorPalette[0], vividColorPalette[1], vividColorPalette[2], vividColorPalette[5]],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: commonChartOptions('doughnut')
+            });
+
+            
+            // --- 바 차트 (수직) ---
+            // 5. 검사 수행 이유 (X축 레이블)
+            new Chart(document.getElementById('reasonsForTestChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['환자 요청', '기본 검사 필요', '기타'],
+                    datasets: [{
+                        label: '검사 수행 이유',
+                        data: [32, 31, 37],
+                        backgroundColor: barChartColor,
+                        borderColor: barChartColor,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        hoverBackgroundColor: vividColorPalette[1]
+                    }]
+                },
+                options: commonBarOptions('x') 
+            });
+
+            // 6. 검사 미수행 이유 (X축 레이블)
+            new Chart(document.getElementById('reasonsAgainstTestChart'), {
+                type: 'bar',
+                data: {
+                    // 줄 바꿈 레이블
+                    labels: ['환자 빠른 처방 선호', ['장비/인력', '시간 부족'], '기타'],
+                    datasets: [{
+                        label: '검사 미수행 이유',
+                        data: [43, 20, 37],
+                        backgroundColor: barChartColor,
+                        borderColor: barChartColor,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        hoverBackgroundColor: vividColorPalette[1]
+                    }]
+                },
+                options: commonBarOptions('x') 
+            });
+
+            // 7. 검사 시 주요 어려움 (X축 레이블)
+            new Chart(document.getElementById('difficultiesChart'), {
+                type: 'bar',
+                data: {
+                    // 줄 바꿈 레이블
+                    labels: [['검사 거부감', '불편감'], ['검사 과정', '번거로움'], '객관성 부족', '기타'],
+                    datasets: [{
+                        label: '검사 시 어려움',
+                        data: [27, 26, 24, 23],
+                        backgroundColor: barChartColor,
+                        borderColor: barChartColor,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        hoverBackgroundColor: vividColorPalette[1]
+                    }]
+                },
+                options: commonBarOptions('x') 
+            });
+
+            // --- 바 차트 (수평) ---
+            // 8. 주요 ED 진단 방법 활용도 (Y축 레이블)
+            new Chart(document.getElementById('diagnosisMethodsChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['단순 문진', '혈액검사', 'IIEF 설문', '도플러 초음파', 'NPT'],
+                    datasets: [{
+                        label: '진단 방법 활용도',
+                        data: [35, 28, 27, 8, 1],
+                        backgroundColor: barChartColor,
+                        borderColor: barChartColor,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        hoverBackgroundColor: vividColorPalette[1]
+                    }]
+                },
+                options: commonBarOptions('y') 
+            });
+
+        });
+    </script>
+</body>
+</html>
